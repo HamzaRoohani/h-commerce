@@ -14,6 +14,7 @@ import { orderRoutes } from './routes/orderRoutes.js';
 import { wishlistRoutes } from './routes/wishlistRoutes.js';
 import { webhookRoutes } from './routes/webhookRoutes.js';
 import { devRoutes } from './routes/devRoutes.js';
+import { adminRoutes } from './routes/adminRoutes.js';
 
 export const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Simulates a gateway's server-to-server webhook call for local testing —
 // never mounted in production, where a real gateway calls the route above.

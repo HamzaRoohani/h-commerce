@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
     "start": "node dist/server.js",
-    "seed": "tsx src/scripts/seed.ts"
+    "seed": "tsx src/scripts/seed.ts",
+    "promote-admin": "tsx src/scripts/promoteAdmin.ts"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

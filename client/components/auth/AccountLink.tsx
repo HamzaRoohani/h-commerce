@@ -9,9 +9,16 @@ export function AccountLink() {
 
   if (status === 'authenticated' && user) {
     return (
-      <Link href="/account" aria-label="Account">
-        {user.name.split(' ')[0]}
-      </Link>
+      <>
+        {user.role === 'admin' ? (
+          <Link href="/admin" className="text-accent">
+            Admin
+          </Link>
+        ) : null}
+        <Link href="/account" aria-label="Account">
+          {user.name.split(' ')[0]}
+        </Link>
+      </>
     );
   }
 

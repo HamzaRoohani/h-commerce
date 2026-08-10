@@ -16,20 +16,21 @@ export function SearchClient() {
   const [results, setResults] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const trimmed = query.trim();
+  const trimmedQuery = query.trim();
 
-    if (trimmed.length === 0) {
-      setResults(null);
-      setLoading(false);
+  useEffect(() => {
+    if (trimmedQuery.length === 0) {
       router.replace('/search', { scroll: false });
       return;
     }
 
+    // Flips the spinner on before the debounced fetch below starts — a
+    // legitimate use this rule doesn't have an exception for yet.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     const timer = setTimeout(() => {
-      router.replace(`/search?q=${encodeURIComponent(trimmed)}`, { scroll: false });
-      listProducts({ search: trimmed, limit: 24 })
+      router.replace(`/search?q=${encodeURIComponent(trimmedQuery)}`, { scroll: false });
+      listProducts({ search: trimmedQuery, limit: 24 })
         .then((res) => setResults(res.products))
         .catch(() => setResults([]))
         .finally(() => setLoading(false));
@@ -37,7 +38,7 @@ export function SearchClient() {
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, [trimmedQuery]);
 
   return (
     <div className="mx-auto max-w-container px-6 py-12">
@@ -55,12 +56,12 @@ export function SearchClient() {
       />
 
       <div className="mt-8">
-        {loading ? (
-          <p className="text-sm text-muted">Searching…</p>
-        ) : results === null ? (
+        {trimmedQuery.length === 0 ? (
           <p className="text-sm text-muted">Start typing to search the catalog.</p>
+        ) : loading || results === null ? (
+          <p className="text-sm text-muted">Searching…</p>
         ) : results.length === 0 ? (
-          <p className="text-sm text-muted">No results for &quot;{query.trim()}&quot;.</p>
+          <p className="text-sm text-muted">No results for &quot;{trimmedQuery}&quot;.</p>
         ) : (
           <ProductGrid products={results} />
         )}

@@ -9,14 +9,7 @@ import mongoose from 'mongoose';
 import { env } from '../config/env.js';
 import { Category } from '../models/Category.js';
 import { Product } from '../models/Product.js';
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
+import { slugify } from '../utils/slugify.js';
 
 function placeholderImage(seed: string, i: number): string {
   return `https://picsum.photos/seed/h-store-${seed}-${i}/800/1000`;

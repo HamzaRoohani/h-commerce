@@ -25,13 +25,18 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Prefill the name field once the user loads, without clobbering anything
+  // they've already typed (React's "adjusting state during render" pattern —
+  // see https://react.dev/learn/you-might-not-need-an-effect).
+  const [prevUserName, setPrevUserName] = useState<string | undefined>(undefined);
+  if (user && user.name !== prevUserName) {
+    setPrevUserName(user.name);
+    setName((prev) => prev || user.name);
+  }
+
   useEffect(() => {
     if (status === 'guest') router.replace('/login');
   }, [status, router]);
-
-  useEffect(() => {
-    if (user) setName((prev) => prev || user.name);
-  }, [user]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

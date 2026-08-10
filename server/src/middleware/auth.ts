@@ -18,3 +18,12 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction) {
     throw new ApiError(401, 'Invalid or expired access token');
   }
 }
+
+/** Mount after requireAuth. Role is embedded in the access token at sign-time (login/refresh),
+ * so a demoted admin keeps access until their current token expires (≤15m). */
+export function requireAdmin(req: Request, _res: Response, next: NextFunction) {
+  if ((req as AuthedRequest).user.role !== 'admin') {
+    throw new ApiError(403, 'Admin access required');
+  }
+  next();
+}

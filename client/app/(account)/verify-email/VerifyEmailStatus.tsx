@@ -13,15 +13,11 @@ export function VerifyEmailStatus() {
   const setSession = useAuthStore((state) => state.setSession);
   const accessToken = useAuthStore((state) => state.accessToken);
 
-  const [status, setStatus] = useState<'pending' | 'success' | 'error'>('pending');
-  const [message, setMessage] = useState('Verifying your email…');
+  const [status, setStatus] = useState<'pending' | 'success' | 'error'>(token ? 'pending' : 'error');
+  const [message, setMessage] = useState(token ? 'Verifying your email…' : 'Missing verification token.');
 
   useEffect(() => {
-    if (!token) {
-      setStatus('error');
-      setMessage('Missing verification token.');
-      return;
-    }
+    if (!token) return;
 
     verifyEmailRequest(token)
       .then(({ user: verifiedUser }) => {

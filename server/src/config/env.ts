@@ -22,6 +22,10 @@ const envSchema = z.object({
   // credentials once merchant sandbox access exists, see docs/ADR.md).
   MOCK_GATEWAY_SECRET: z.string().min(1).default('mock-gateway-dev-secret'),
   PENDING_ORDER_EXPIRY_MINUTES: z.coerce.number().positive().default(30),
+
+  // Phase 7: shared with the client's app/api/revalidate route so admin
+  // product mutations can trigger on-demand ISR (§11 of the build plan).
+  REVALIDATE_SECRET: z.string().min(1).default('revalidate-dev-secret'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -33,3 +37,34 @@ if (!parsed.success) {
 }
 
 export const env = parsed.data;
+
+// Dev-only defaults/placeholders that must never reach production — each one
+// leaking would let an outsider forge webhook events, trigger revalidation,
+// or mint valid JWTs.
+if (env.NODE_ENV === 'production') {
+  const insecureDefaults: Record<string, string> = {
+    MOCK_GATEWAY_SECRET: 'mock-gateway-dev-secret',
+    REVALIDATE_SECRET: 'revalidate-dev-secret',
+    JWT_ACCESS_SECRET: 'replace_me_dev_only',
+    JWT_REFRESH_SECRET: 'replace_me_dev_only_too',
+  };
+  const offenders = Object.entries(insecureDefaults)
+    .filter(([key, devValue]) => env[key as keyof typeof env] === devValue)
+    .map(([key]) => key);
+
+  if (env.JWT_ACCESS_SECRET === env.JWT_REFRESH_SECRET) {
+    offenders.push('JWT_ACCESS_SECRET/JWT_REFRESH_SECRET (must differ)');
+  }
+  if (env.JWT_ACCESS_SECRET.length < 32 || env.JWT_REFRESH_SECRET.length < 32) {
+    offenders.push('JWT_ACCESS_SECRET/JWT_REFRESH_SECRET (must be at least 32 characters)');
+  }
+  if (env.COOKIE_DOMAIN === 'localhost') {
+    offenders.push('COOKIE_DOMAIN');
+  }
+
+  if (offenders.length > 0) {
+    throw new Error(
+      `Refusing to start in production with insecure/default environment values: ${offenders.join(', ')}`,
+    );
+  }
+}
