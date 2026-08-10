@@ -3,8 +3,10 @@
 import { useEffect } from 'react';
 import { refreshRequest } from '@/lib/auth';
 import { getCart } from '@/lib/cart';
+import { getWishlist } from '@/lib/wishlist';
 import { useAuthStore } from '@/store/authStore';
 import { useServerCartStore } from '@/store/serverCartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
 
 /**
  * Silent refresh on app boot (§6.4): the access token lives in memory, so a
@@ -17,6 +19,7 @@ export function AuthBootstrap() {
   const setSession = useAuthStore((state) => state.setSession);
   const clearSession = useAuthStore((state) => state.clearSession);
   const setServerCart = useServerCartStore((state) => state.setCart);
+  const setWishlist = useWishlistStore((state) => state.setWishlist);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,9 +28,14 @@ export function AuthBootstrap() {
       .then(({ accessToken, user }) => {
         if (cancelled) return;
         setSession(accessToken, user);
-        return getCart().then((cart) => {
-          if (!cancelled) setServerCart(cart.items, cart.subtotalPaisa);
-        });
+        return Promise.all([
+          getCart().then((cart) => {
+            if (!cancelled) setServerCart(cart.items, cart.subtotalPaisa);
+          }),
+          getWishlist().then((res) => {
+            if (!cancelled) setWishlist(res.products);
+          }),
+        ]);
       })
       .catch(() => {
         if (!cancelled) clearSession();
@@ -36,7 +44,7 @@ export function AuthBootstrap() {
     return () => {
       cancelled = true;
     };
-  }, [setSession, clearSession, setServerCart]);
+  }, [setSession, clearSession, setServerCart, setWishlist]);
 
   return null;
 }

@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPaisa } from '@/lib/money';
+import { WishlistButton } from '@/components/wishlist/WishlistButton';
+import { QuickAddButton } from '@/components/product/QuickAddButton';
 import type { Product } from '@/types/product';
 
 export function ProductCard({ product }: { product: Product }) {
@@ -23,6 +25,11 @@ export function ProductCard({ product }: { product: Product }) {
             New In
           </span>
         ) : null}
+        <WishlistButton
+          product={product}
+          className="absolute right-2 top-2 bg-paper/90 px-1.5 py-0.5 text-base leading-none text-ink"
+        />
+        <QuickAddButton product={product} />
       </div>
       <div className="mt-3 space-y-1">
         <p className="text-sm text-ink">{product.title}</p>

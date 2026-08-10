@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { logoutRequest } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
 import { useServerCartStore } from '@/store/serverCartStore';
+import { useWishlistStore } from '@/store/wishlistStore';
 
 export default function AccountPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function AccountPage() {
   const user = useAuthStore((state) => state.user);
   const clearSession = useAuthStore((state) => state.clearSession);
   const resetServerCart = useServerCartStore((state) => state.reset);
+  const resetWishlist = useWishlistStore((state) => state.reset);
 
   useEffect(() => {
     if (status === 'guest') router.replace('/login');
@@ -25,6 +27,7 @@ export default function AccountPage() {
     // (an extra one would just race that redirect).
     clearSession();
     resetServerCart();
+    resetWishlist();
   }
 
   if (status !== 'authenticated' || !user) {

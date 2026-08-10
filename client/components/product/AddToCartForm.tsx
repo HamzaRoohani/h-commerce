@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { useCartUiStore } from '@/store/cartUiStore';
+import { useWishlist } from '@/hooks/useWishlist';
+import { useRouter } from 'next/navigation';
 import type { Product } from '@/types/product';
 
 export function AddToCartForm({ product }: { product: Product }) {
@@ -13,6 +15,9 @@ export function AddToCartForm({ product }: { product: Product }) {
   const [status, setStatus] = useState<'idle' | 'adding' | 'error'>('idle');
   const { addItem } = useCart();
   const openCart = useCartUiStore((state) => state.open);
+  const { productIds, isAuthenticated, toggle } = useWishlist();
+  const router = useRouter();
+  const isWishlisted = productIds.has(product._id);
 
   const selectedVariant = product.variants.find((v) => v.sku === selectedSku) ?? null;
   const currentPricePaisa =
@@ -89,6 +94,14 @@ export function AddToCartForm({ product }: { product: Product }) {
         {status === 'adding' ? 'Adding…' : 'Add to Cart'}
       </button>
       {status === 'error' ? <p className="mt-2 text-sm text-accent">Couldn&apos;t add to cart. Try again.</p> : null}
+
+      <button
+        type="button"
+        onClick={() => (isAuthenticated ? toggle(product) : router.push('/login'))}
+        className="mt-3 w-full border border-border py-3 text-sm uppercase tracking-wide text-ink"
+      >
+        {isWishlisted ? '♥ Remove from Wishlist' : '♡ Add to Wishlist'}
+      </button>
     </div>
   );
 }

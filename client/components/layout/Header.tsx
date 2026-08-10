@@ -1,27 +1,29 @@
 import Link from 'next/link';
 import { AccountLink } from '@/components/auth/AccountLink';
 import { CartTrigger } from '@/components/cart/CartTrigger';
+import { MegaMenu } from '@/components/layout/MegaMenu';
+import { MobileNav } from '@/components/layout/MobileNav';
+import { WishlistLink } from '@/components/wishlist/WishlistLink';
+import { listCategories } from '@/lib/categories';
 
-/**
- * Minimal header shell. Mega-menu lands in Phase 6 (§12 of the build plan).
- */
-export function Header() {
+export async function Header() {
+  const categories = await listCategories();
+
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-paper/95 backdrop-blur">
       <div className="mx-auto flex max-w-container items-center justify-between px-6 py-4">
-        <Link href="/" className="font-serif text-2xl tracking-wide">
-          H.
-        </Link>
-        <nav className="hidden gap-8 text-sm uppercase tracking-wide text-ink md:flex">
-          <Link href="/collections/men">Men</Link>
-          <Link href="/collections/women">Women</Link>
-          <Link href="/collections/kids">Kids</Link>
-          <Link href="/collections/accessories">Accessories</Link>
-        </nav>
+        <div className="flex items-center gap-2">
+          <MobileNav categories={categories} />
+          <Link href="/" className="font-serif text-2xl tracking-wide">
+            H.
+          </Link>
+        </div>
+        <MegaMenu categories={categories} />
         <div className="flex items-center gap-4 text-sm">
           <Link href="/search" aria-label="Search">
             Search
           </Link>
+          <WishlistLink />
           <AccountLink />
           <CartTrigger />
         </div>

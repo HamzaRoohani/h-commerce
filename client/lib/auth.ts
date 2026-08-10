@@ -17,8 +17,23 @@ export function loginRequest(input: { email: string; password: string }) {
   });
 }
 
-export function refreshRequest() {
-  return apiFetch<SessionResponse>('/auth/refresh', { method: 'POST' });
+let inFlightRefresh: Promise<SessionResponse> | null = null;
+
+/**
+ * Deduplicates concurrent callers onto one in-flight request. Refresh
+ * tokens rotate on every use (§6.5) — two near-simultaneous calls (React
+ * Strict Mode double-invoking an effect, two tabs refreshing at once) would
+ * otherwise race: the first rotates the cookie, the second presents the
+ * now-stale token, and the server's reuse detection revokes the whole
+ * session as a false positive.
+ */
+export function refreshRequest(): Promise<SessionResponse> {
+  if (inFlightRefresh) return inFlightRefresh;
+
+  inFlightRefresh = apiFetch<SessionResponse>('/auth/refresh', { method: 'POST' }).finally(() => {
+    inFlightRefresh = null;
+  });
+  return inFlightRefresh;
 }
 
 export function logoutRequest() {

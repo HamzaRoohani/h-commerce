@@ -11,6 +11,7 @@ import { categoryRoutes } from './routes/categoryRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { cartRoutes } from './routes/cartRoutes.js';
 import { orderRoutes } from './routes/orderRoutes.js';
+import { wishlistRoutes } from './routes/wishlistRoutes.js';
 import { webhookRoutes } from './routes/webhookRoutes.js';
 import { devRoutes } from './routes/devRoutes.js';
 
@@ -43,6 +44,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
 // Simulates a gateway's server-to-server webhook call for local testing —
