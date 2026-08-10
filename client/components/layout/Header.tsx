@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { AccountLink } from '@/components/auth/AccountLink';
+import { CartTrigger } from '@/components/cart/CartTrigger';
 
 /**
- * Minimal header shell. Mega-menu, wishlist/cart counts land in Phase 6
- * (§12 of the build plan) once cart state exists.
+ * Minimal header shell. Mega-menu lands in Phase 6 (§12 of the build plan).
  */
 export function Header() {
   return (
@@ -23,9 +23,7 @@ export function Header() {
             Search
           </Link>
           <AccountLink />
-          <Link href="/cart" aria-label="Cart">
-            Cart
-          </Link>
+          <CartTrigger />
         </div>
       </div>
     </header>

@@ -1,9 +1,5 @@
 import { Schema, model, type InferSchemaType, type Types } from 'mongoose';
-
-const isInteger = {
-  validator: (v: number | null | undefined) => v == null || Number.isInteger(v),
-  message: '{PATH} must be an integer number of paisa (see docs/ADR.md ADR-001)',
-};
+import { isInteger } from '../utils/paisaValidator.js';
 
 const variantSchema = new Schema(
   {

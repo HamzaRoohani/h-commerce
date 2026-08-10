@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { getProductBySlug } from '@/lib/products';
 import { formatPaisa } from '@/lib/money';
 import { ProductGallery } from '@/components/product/ProductGallery';
+import { AddToCartForm } from '@/components/product/AddToCartForm';
 
 type PageParams = { slug: string };
 
@@ -86,36 +87,7 @@ export default async function ProductPage({ params }: { params: Promise<PagePara
 
           <p className="mt-6 text-sm leading-relaxed text-muted">{product.description}</p>
 
-          {product.variants.some((v) => v.size) ? (
-            <div className="mt-6">
-              <p className="mb-2 text-xs uppercase tracking-wide text-ink">Available Sizes</p>
-              <div className="flex flex-wrap gap-2">
-                {product.variants.map((variant) => (
-                  <span
-                    key={variant.sku}
-                    className={`border px-3 py-1 text-sm ${
-                      variant.stock > 0 ? 'border-border text-ink' : 'border-border text-muted line-through'
-                    }`}
-                  >
-                    {variant.size}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          <p className="mt-6 text-sm">
-            {inStock ? <span className="text-ink">In stock</span> : <span className="text-muted">Out of stock</span>}
-          </p>
-
-          {/* Add-to-cart lands in Phase 4 once the cart exists. */}
-          <button
-            type="button"
-            disabled
-            className="mt-8 w-full cursor-not-allowed border border-border py-3 text-sm uppercase tracking-wide text-muted"
-          >
-            Add to Cart — Coming Soon
-          </button>
+          <AddToCartForm product={product} />
         </div>
       </div>
     </div>

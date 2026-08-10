@@ -1,15 +1,18 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logoutRequest } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
+import { useServerCartStore } from '@/store/serverCartStore';
 
 export default function AccountPage() {
   const router = useRouter();
   const status = useAuthStore((state) => state.status);
   const user = useAuthStore((state) => state.user);
   const clearSession = useAuthStore((state) => state.clearSession);
+  const resetServerCart = useServerCartStore((state) => state.reset);
 
   useEffect(() => {
     if (status === 'guest') router.replace('/login');
@@ -21,6 +24,7 @@ export default function AccountPage() {
     // above picks up to redirect to /login — no separate push needed here
     // (an extra one would just race that redirect).
     clearSession();
+    resetServerCart();
   }
 
   if (status !== 'authenticated' || !user) {
@@ -48,12 +52,14 @@ export default function AccountPage() {
         </div>
       </dl>
 
-      {/* Order history lands in Phase 4 once orders exist. */}
+      <Link href="/account/orders" className="mt-8 block text-sm text-ink underline">
+        Order History
+      </Link>
 
       <button
         type="button"
         onClick={handleLogout}
-        className="mt-10 w-full border border-border py-3 text-sm uppercase tracking-wide text-ink"
+        className="mt-6 w-full border border-border py-3 text-sm uppercase tracking-wide text-ink"
       >
         Log Out
       </button>

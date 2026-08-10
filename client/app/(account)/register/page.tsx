@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { registerRequest } from '@/lib/auth';
 import { useAuthStore } from '@/store/authStore';
 import { ApiError } from '@/lib/api';
+import { mergeGuestCartIntoServer } from '@/lib/cartMerge';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function RegisterPage() {
     try {
       const { accessToken, user } = await registerRequest({ name, email, password });
       setSession(accessToken, user);
+      await mergeGuestCartIntoServer().catch(() => {});
       router.push('/account');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Try again.');
