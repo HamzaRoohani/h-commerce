@@ -7,7 +7,7 @@ for why, and why no assets/copy are shared with any reference site).
 ## Structure
 
 ```
-client/   Next.js 14 (App Router) storefront + account
+client/   Next.js 16 (App Router) storefront + account
 server/   Express API + MongoDB (Mongoose)
 docs/     ADRs, API docs, schema notes
 ```
@@ -34,5 +34,7 @@ Server defaults to `http://localhost:5000`, client to `http://localhost:3000`.
 
 ## Build plan
 
-Full phased roadmap lives in the original planning doc (8-week part-time plan,
-Phase 0 → Phase 7). Current phase: **Phase 1 — Foundations**.
+Full phased roadmap: [docs/build-plan.md](docs/build-plan.md) (8-week part-time plan, Phase 0 → Phase 7).
+Locked architecture decisions: [docs/ADR.md](docs/ADR.md). Phases 0–6 complete (scaffold, auth,
+storefront, cart/checkout, gateway payments, mega-menu/wishlist/search/polish). Remaining: **Phase 7 —
+admin panel + production hardening**.
