@@ -7,12 +7,20 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export function createOrder(input: { shippingAddress: ShippingAddress; paymentMethod: 'cod' }) {
-  return apiFetch<{ order: Order }>('/orders', {
+export function createOrder(input: { shippingAddress: ShippingAddress; paymentMethod: 'cod' | 'gateway' }) {
+  return apiFetch<{ order: Order; redirectUrl?: string }>('/orders', {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify(input),
   });
+}
+
+/** Dev-only — simulates the gateway's server-to-server webhook call. See server/src/controllers/devController.ts. */
+export function simulateMockGatewayPayment(orderNumber: string, outcome: 'paid' | 'failed') {
+  return apiFetch<{ simulated: string; webhookStatus: number }>(
+    `/dev/mock-gateway/${orderNumber}/simulate`,
+    { method: 'POST', headers: authHeaders(), body: JSON.stringify({ outcome }) },
+  );
 }
 
 export function listOrders() {

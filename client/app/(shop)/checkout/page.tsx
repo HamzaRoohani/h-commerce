@@ -21,6 +21,7 @@ export default function CheckoutPage() {
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
   const [phone, setPhone] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'gateway'>('cod');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -37,12 +38,12 @@ export default function CheckoutPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const { order } = await createOrder({
+      const { order, redirectUrl } = await createOrder({
         shippingAddress: { name, street, city, country: 'Pakistan', phone },
-        paymentMethod: 'cod',
+        paymentMethod,
       });
-      resetServerCart();
-      router.push(`/account/orders/${order.orderNumber}`);
+      if (paymentMethod === 'cod') resetServerCart();
+      router.push(redirectUrl ?? `/account/orders/${order.orderNumber}`);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Something went wrong. Try again.');
       setSubmitting(false);
@@ -136,7 +137,29 @@ export default function CheckoutPage() {
             />
           </div>
 
-          <div className="border border-border px-3 py-2 text-sm text-ink">Cash on Delivery</div>
+          <div>
+            <p className="mb-1 text-xs uppercase tracking-wide text-muted">Payment Method</p>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 border border-border px-3 py-2 text-sm">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === 'cod'}
+                  onChange={() => setPaymentMethod('cod')}
+                />
+                Cash on Delivery
+              </label>
+              <label className="flex items-center gap-2 border border-border px-3 py-2 text-sm">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  checked={paymentMethod === 'gateway'}
+                  onChange={() => setPaymentMethod('gateway')}
+                />
+                Card / JazzCash / Easypaisa
+              </label>
+            </div>
+          </div>
 
           {error ? <p className="text-sm text-accent">{error}</p> : null}
 

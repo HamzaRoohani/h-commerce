@@ -11,6 +11,8 @@ import { categoryRoutes } from './routes/categoryRoutes.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { cartRoutes } from './routes/cartRoutes.js';
 import { orderRoutes } from './routes/orderRoutes.js';
+import { webhookRoutes } from './routes/webhookRoutes.js';
+import { devRoutes } from './routes/devRoutes.js';
 
 export const app = express();
 
@@ -41,9 +43,13 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
-// Feature routes mounted in later phases:
-//   Phase 5: /api/webhooks/payments/:provider
+// Simulates a gateway's server-to-server webhook call for local testing —
+// never mounted in production, where a real gateway calls the route above.
+if (env.NODE_ENV !== 'production') {
+  app.use('/api/dev', devRoutes);
+}
 
 app.use(notFoundHandler);
 app.use(errorHandler);

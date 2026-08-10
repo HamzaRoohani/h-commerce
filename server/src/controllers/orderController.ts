@@ -116,14 +116,19 @@ export async function createOrder(req: Request, res: Response) {
     paymentProvider: body.paymentMethod,
   });
 
-  const { ref } = await provider.createPaymentIntent(order);
+  const { ref, redirectUrl } = await provider.createPaymentIntent(order);
   order.paymentRef = ref;
   await order.save();
 
-  cart.items.splice(0, cart.items.length);
-  await cart.save();
+  // COD is committed immediately, so its cart clears now. A gateway order's
+  // cart stays intact until the webhook confirms payment (§5) — otherwise a
+  // failed/abandoned payment would strand the user with an empty cart.
+  if (body.paymentMethod === 'cod') {
+    cart.items.splice(0, cart.items.length);
+    await cart.save();
+  }
 
-  res.status(201).json({ order });
+  res.status(201).json({ order, redirectUrl });
 }
 
 export async function listOrders(req: Request, res: Response) {

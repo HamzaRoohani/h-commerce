@@ -16,7 +16,12 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
-  PAYMENT_PROVIDER: z.enum(['cod', 'payfast', 'safepay', 'simpaisa']).default('cod'),
+  PAYMENT_PROVIDER: z.enum(['cod', 'gateway', 'payfast', 'safepay', 'simpaisa']).default('cod'),
+
+  // Phase 5 mock gateway (dev/test only — swapped for a real provider's
+  // credentials once merchant sandbox access exists, see docs/ADR.md).
+  MOCK_GATEWAY_SECRET: z.string().min(1).default('mock-gateway-dev-secret'),
+  PENDING_ORDER_EXPIRY_MINUTES: z.coerce.number().positive().default(30),
 });
 
 const parsed = envSchema.safeParse(process.env);
