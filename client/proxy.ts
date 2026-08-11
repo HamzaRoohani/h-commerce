@@ -22,6 +22,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api';
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Checkout requires a session. Gating it here — instead of letting the
+  // page load and redirect client-side once its own auth check resolves —
+  // means a guest never sees /checkout at all: no loading flash, no visible
+  // detour through the URL. A present-but-invalid/expired cookie still
+  // falls through to the page's own client-side guest redirect.
+  if (pathname === '/checkout' && !request.cookies.get('refreshToken')) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
   const productMatch = pathname.match(/^\/products\/([^/]+)\/?$/);
   if (productMatch) {
     const missing = await isMissing(`/products/${productMatch[1]}`);
@@ -78,5 +87,5 @@ function notFoundResponse(): NextResponse {
 }
 
 export const config = {
-  matcher: ['/products/:slug', '/collections/:slug'],
+  matcher: ['/products/:slug', '/collections/:slug', '/checkout'],
 };
