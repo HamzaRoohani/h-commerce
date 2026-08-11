@@ -3,7 +3,12 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   # Dev-grade values are fine here — this only runs against an ephemeral CI
@@ -18,22 +23,33 @@ env:
 
 jobs:
   server:
+    name: Server (typecheck & build)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: server
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: server/package-lock.json
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
 
   client:
+    name: Client (lint, typecheck & build)
     runs-on: ubuntu-latest
     services:
       mongodb:
@@ -41,16 +57,22 @@ jobs:
         ports:
           - 27017:27017
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: |
+            server/package-lock.json
+            client/package-lock.json
 
       # The storefront's static pages (/, collections, PDPs) fetch product
-      # data at build time — a real API has to be up for `next build` to
-      # succeed, not just for local dev.
-      - name: Build and start the API
+      # data at build time, so `next build` needs a real API to talk to —
+      # local dev isn't the only place that's true.
+      - name: Build, seed, and start the API
         working-directory: server
         run: |
           npm ci
@@ -64,7 +86,7 @@ jobs:
           echo "API did not become healthy in time" >&2
           exit 1
 
-      - name: Install client deps
+      - name: Install dependencies
         working-directory: client
         run: npm ci
 
